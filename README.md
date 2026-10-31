@@ -17,7 +17,7 @@ On a computer, use the buttons above the phone to switch between the **Student a
 - `app.html`: the prototype itself.
 
 Demo links:
-- `#tc07`: the student page for cabinet TC-07 (Library 1F). Hot Soy Milk is at 9/10, so one wish unlocks it.
+- `#tc07`: the student page for cabinet TC-07 (Library 1F). Oat Latte is at 9/10, so one wish unlocks it.
 - `#operator`: the operator console (all locations → campus → cabinet).
 
 ## Notes

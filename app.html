@@ -338,7 +338,7 @@ const CABS = [
   {id:"SZ-09", site:"sz", en:"Dorm 3 Lobby", zh:"3号宿舍大堂", zone:"living", peak:"23:00", slow:{en:"Oat Latte",zh:"燕麦拿铁",n:1}},
   {id:"OP-02", site:"op", en:"Tower A Lobby", zh:"A座大堂", zone:"office", peak:"08:40", slow:{en:"Energy Drink",zh:"能量饮料",n:2}},
   {id:"OP-06", site:"op", en:"Tower B 12F Pantry", zh:"B座12楼茶水间", zone:"office", peak:"15:00", slow:{en:"Cup Noodles",zh:"杯面",n:1}},
-  {id:"GY-01", site:"gy", en:"Front Desk", zh:"前台", zone:"gym", peak:"19:00", slow:{en:"Hot Soy Milk",zh:"热豆奶",n:0}}
+  {id:"GY-01", site:"gy", en:"Front Desk", zh:"前台", zone:"gym", peak:"19:00", slow:{en:"Black Coffee Can",zh:"罐装黑咖啡",n:0}}
 ];
 const PRODUCTS = [
   {id:"americano", cat:"coffee", icon:"cup", c:"#7A4B2A", en:"Iced Americano", zh:"冰美式咖啡", brand:"Peak Brew", goal:50},
@@ -350,7 +350,6 @@ const PRODUCTS = [
   {id:"matcha", cat:"tea", icon:"bottle", c:"#6FA84A", en:"Matcha Milk Tea", zh:"抹茶奶茶", brand:"Green Hill", goal:30},
   {id:"peach", cat:"tea", icon:"bottle", c:"#F39A7B", en:"Peach Oolong Tea", zh:"白桃乌龙茶", brand:"Leaf & Co.", goal:30},
   {id:"jasmine", cat:"tea", icon:"bottle", c:"#E9E2A8", en:"Jasmine Green Tea", zh:"茉莉绿茶", brand:"Leaf & Co.", goal:30},
-  {id:"soymilk", cat:"hot", icon:"cup", c:"#E2C98F", en:"Hot Soy Milk", zh:"热豆奶", brand:"Sunny Farm", goal:30},
   {id:"datemilk", cat:"hot", icon:"cup", c:"#B5523B", en:"Hot Red Date Milk", zh:"热红枣牛奶", brand:"Sunny Farm", goal:30},
   {id:"cocoa", cat:"hot", icon:"cup", c:"#6B3E26", en:"Hot Cocoa", zh:"热可可", brand:"Cozy Cup", goal:30},
   {id:"lemon", cat:"water", icon:"bottle", c:"#F2C230", en:"Lemon Sparkling 1L", zh:"柠檬气泡水 1L", brand:"Bubble Lab", goal:30},
@@ -364,7 +363,7 @@ const PRODUCTS = [
 ];
 PRODUCTS.forEach(p=>{ p.goal = 10; });
 const OVERRIDE = {
-  "TC-07":{soymilk:9, americano:8, energy:6},
+  "TC-07":{oatlatte:9, americano:8, energy:6},
   "TC-05":{americano:10, oatlatte:6},
   "TC-03":{noodles:10, lemon:7, crisps:5, americano:2},
   "TC-12":{electro:10, bar:6, americano:0}
