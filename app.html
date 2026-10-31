@@ -1,4 +1,4 @@
-<title>Wish Cabinet Prototype</title>
+<title>Wish2Shelf Prototype</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
@@ -215,7 +215,7 @@ table.heat td.peak{outline:2px solid var(--wish);outline-offset:-2px}
   <header class="top pad">
     <div class="brand">
       <button class="mark" type="button" data-act="home" aria-label="Home"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" fill="#17200F"/></svg></button>
-      <div style="min-width:0"><b id="brandName">Wish Cabinet</b><small id="brandSub"></small></div>
+      <div style="min-width:0"><b id="brandName">Wish2Shelf</b><small id="brandSub"></small></div>
     </div>
     <div class="lang" role="group" aria-label="Language">
       <button type="button" id="langEn" data-lang="en" aria-pressed="true">EN</button>
@@ -233,7 +233,7 @@ table.heat td.peak{outline:2px solid var(--wish);outline-offset:-2px}
 (function(){
 const T = {
   en:{
-    brand:"Wish Cabinet", demo:"Demo view", modeStudent:"Student app", modeOps:"Operator console", console:"Operator console",
+    brand:"Wish2Shelf", demo:"Demo view", modeStudent:"Student app", modeOps:"Operator console", console:"Operator console",
     scannedAt:"You scanned", h1a:"Didn’t find it?", h1b:"Make a wish.",
     lead:"Pick what you wanted. When enough people at this cabinet wish for it, it’s stocked at the next restock and we message you.",
     makeWish:"Make a wish", wishSub:"3 seconds · tell us what’s missing", here:c=>`Wishes at ${c}`, seeOps:"Demo: see this cabinet in the operator console",
@@ -255,7 +255,7 @@ const T = {
     promiseOn:"We’ll message you when it arrives.", promiseOff:"Check this page after the next restock.",
     couponLine:"10% off is applied automatically when you buy it.",
     share:"Share with friends", copied:"Copied. Paste it in your group chat.", back:"Back to this cabinet",
-    shareText:(n,left)=>`I wished for ${n} at the Wish Cabinet. ${left>0?left+" more wishes and it gets stocked!":"We unlocked it!"} Scan the sticker on the cabinet to help.`,
+    shareText:(n,left)=>`I wished for ${n} on Wish2Shelf. ${left>0?left+" more wishes and it gets stocked!":"We unlocked it!"} Scan the sticker on the cabinet to help.`,
     foot:"Prototype · demo numbers · locations, brands and products are placeholders",
     allLoc:"All locations", allLead:"Every wish carries the cabinet whose QR code was scanned. Pick a location to see its cabinets.",
     tLoc:"Locations", tCab:"Cabinets", tWish:"Wishes this week", tUnl:"Products unlocked", tReq:"New requests", tReady:"Ready to restock", queueTitle:"Unlocked: ready to restock", queueLead:"These products reached 10 wishes. Stock them at the next restock, then mark them so every wisher gets a message.", queueEmpty:"Nothing waiting. Products appear here the moment they unlock.", atNow:"Unlocked just now", atToday:"Unlocked today 09:12", markStocked:"Mark restocked", openCab:"Open", stockedToast:c=>`Marked as restocked. Everyone who wished at ${c} gets a message.`, readyN:n=>`${n} ready to restock`, stStock:"In stock", newBadge:"New",

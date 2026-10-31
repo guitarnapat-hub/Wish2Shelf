@@ -1,4 +1,4 @@
-# Wish2Shelf: Wish Cabinet (心愿柜) prototype
+# Wish2Shelf (心愿柜): prototype
 
 Clickable prototype for the Chi-Forest (元气森林) smart cabinet "Machine Managing Competition".
 
