@@ -209,7 +209,7 @@ table.heat td.peak{outline:2px solid var(--wish);outline-offset:-2px}
   <div class="demobar pad"><span id="demoLabel">Demo view</span>
     <div class="seg" role="group" aria-label="Demo view">
       <button type="button" id="modeStudent" data-mode="student" aria-pressed="true">Student app</button>
-      <button type="button" id="modeOps" data-mode="ops" aria-pressed="false">Operator console</button>
+      <button type="button" id="modeOps" data-mode="ops" aria-pressed="false">Chi Forest console</button>
     </div>
   </div>
   <header class="top pad">
@@ -233,10 +233,10 @@ table.heat td.peak{outline:2px solid var(--wish);outline-offset:-2px}
 (function(){
 const T = {
   en:{
-    brand:"Wish2Shelf", demo:"Demo view", modeStudent:"Student app", modeOps:"Operator console", console:"Operator console",
+    brand:"Wish2Shelf", demo:"Demo view", modeStudent:"Student app", modeOps:"Chi Forest console", console:"Chi Forest console",
     scannedAt:"You scanned", h1a:"Didn’t find it?", h1b:"Make a wish.",
     lead:"Pick what you wanted. When enough people at this cabinet wish for it, it’s stocked at the next restock and we message you.",
-    makeWish:"Make a wish", wishSub:"3 seconds · tell us what’s missing", here:c=>`Wishes at ${c}`, seeOps:"Demo: see this cabinet in the operator console",
+    makeWish:"Make a wish", wishSub:"3 seconds · tell us what’s missing", here:c=>`Wishes at ${c}`, seeOps:"Demo: see this cabinet in the Chi Forest console",
     step1:"Step 1 of 2", step2:"Step 2 of 2", catTitle:"What kind of product?", nProducts:n=>`${n} products`,
     brandTitle:c=>c, brandLead:"Pick the brand and product you wanted.",
     cantFind:"Can’t find it?", cantLead:"Tell us another way. We’ll add it to this cabinet’s list.",
@@ -246,7 +246,7 @@ const T = {
     typeTitle:"Type the brand or product", typeLabel:"Brand or product name", typePh:"e.g. coconut water",
     already:"Already on the list", tapWish:"Wish", requestNew:q=>`Request “${q}”`, sendReq:"Send request",
     photoTitle:"Your photo", photoName:"Product name (optional)", photoNamePh:"e.g. the name on the label",
-    photoNote:"Prototype: the photo stays on this page. In the full version, AI reads the label and the operator checks it.",
+    photoNote:"Prototype: the photo stays on this page. In the full version, AI reads the label and Chi Forest checks it.",
     photoBad:"That file isn’t an image. Try a photo of the product.",
     counted:"Wish counted!", unlockedNow:"You unlocked it!", more:n=>`${n} more to unlock`, arriving:"Stocked at the next restock",
     reqDone:"Request sent!", reqLead:"We’ll check it and add it to this cabinet’s list.",
@@ -262,7 +262,7 @@ const T = {
     cabinets:n=>`${n} ${n===1?"cabinet":"cabinets"}`, wishesShort:"wishes", topCat:"Top demand",
     locLead:"Each row is one cabinet. The outlined cell is what that cabinet wants most. Tap a cabinet for its restock plan.",
     heatTitle:"Wishes by category", cabListTitle:"Cabinets", topWish:"Top wish",
-    cabTopTitle:"What people want here", planTitle:"Next restock plan", planLead:"Rule-based demo of the AI restock assistant.",
+    cabTopTitle:"What people want here", planTitle:"Recommendation for this partner", planLead:"Chi Forest sends this to the partner who runs this cabinet. Rule-based demo of the AI assistant.",
     add:"Add", remove:"Remove", time:"Restock before", soldN:n=>`${n} sold in 7 days`, peakAt:"busiest at",
     reqTitle:"New requests from students", reqNote:"Typed names and photos for products not in the catalog yet.", reqEmpty:"No new requests yet.",
     reqTyped:"Typed", reqPhoto:"Photo", reqTimes:n=>`× ${n}`,
@@ -275,10 +275,10 @@ const T = {
     catsShort:{coffee:"Coffee",tea:"Tea",hot:"Hot",water:"Water",snacks:"Snacks"}
   },
   zh:{
-    brand:"心愿柜", demo:"演示视图", modeStudent:"学生端", modeOps:"运营后台", console:"运营后台",
+    brand:"心愿柜", demo:"演示视图", modeStudent:"学生端", modeOps:"元气森林后台", console:"元气森林后台",
     scannedAt:"扫码位置", h1a:"没找到想要的？", h1b:"许个愿吧。",
     lead:"选出你想要的商品。当这台柜子的足够多人许愿，下次补货就会上架，并通知你。",
-    makeWish:"去许愿", wishSub:"3秒完成 · 告诉我们缺什么", here:c=>`${c} 的心愿`, seeOps:"演示：在运营后台查看这台柜子",
+    makeWish:"去许愿", wishSub:"3秒完成 · 告诉我们缺什么", here:c=>`${c} 的心愿`, seeOps:"演示：在元气森林后台查看这台柜子",
     step1:"第 1 步，共 2 步", step2:"第 2 步，共 2 步", catTitle:"你想要哪类商品？", nProducts:n=>`${n} 款商品`,
     brandTitle:c=>c, brandLead:"选择你想要的品牌和商品。",
     cantFind:"找不到？", cantLead:"换个方式告诉我们，我们会加入本柜的心愿单。",
@@ -288,7 +288,7 @@ const T = {
     typeTitle:"输入品牌或商品名称", typeLabel:"品牌或商品名称", typePh:"例如 椰子水",
     already:"已在列表中", tapWish:"许愿", requestNew:q=>`申请「${q}」`, sendReq:"提交申请",
     photoTitle:"你的照片", photoName:"商品名称（选填）", photoNamePh:"例如 包装上的名字",
-    photoNote:"原型演示：照片只保留在本页面。完整版中由AI识别包装，再由运营方确认。",
+    photoNote:"原型演示：照片只保留在本页面。完整版中由AI识别包装，再由元气森林确认。",
     photoBad:"这不是图片文件，请上传商品照片。",
     counted:"心愿已记录！", unlockedNow:"你帮它解锁了！", more:n=>`还差 ${n} 个心愿解锁`, arriving:"将在下次补货时上架",
     reqDone:"申请已提交！", reqLead:"我们会确认后加入本柜的心愿单。",
@@ -304,7 +304,7 @@ const T = {
     cabinets:n=>`${n} 台柜子`, wishesShort:"心愿", topCat:"最大需求",
     locLead:"每一行是一台柜子，描边格子是它最想要的品类。点击柜子查看补货方案。",
     heatTitle:"各品类心愿数", cabListTitle:"柜子", topWish:"最热心愿",
-    cabTopTitle:"这里的人想要什么", planTitle:"下次补货方案", planLead:"AI补货助手的规则演示。",
+    cabTopTitle:"这里的人想要什么", planTitle:"给合作伙伴的补货建议", planLead:"由元气森林发送给运营这台柜子的合作伙伴。AI助手的规则演示。",
     add:"新增", remove:"下架", time:"补货时间早于", soldN:n=>`7天售出 ${n} 件`, peakAt:"高峰",
     reqTitle:"学生的新申请", reqNote:"目录中还没有的商品：手动输入的名称和照片。", reqEmpty:"暂无新申请。",
     reqTyped:"输入", reqPhoto:"照片", reqTimes:n=>`× ${n}`,
