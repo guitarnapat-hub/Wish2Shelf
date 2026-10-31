@@ -6,10 +6,15 @@ Students scan the QR sticker on a cabinet and wish for a missing product, first 
 
 ## Try it
 
-- **Live:** open the GitHub Pages link for this repo on your phone.
-- **Offline:** download `index.html` and open it in any browser.
+- **Live:** open the GitHub Pages link for this repo. On a computer it shows inside a phone frame; on a phone it opens full screen.
+- **Offline:** download `index.html` and `app.html` into the same folder and open `index.html`, or just open `app.html` on its own.
 
-Use the bar at the top to switch between the **Student app** and the **Operator console**, and between **EN** and **中文**.
+On a computer, use the buttons above the phone to switch between the **Student app** and the **Operator console**, or reset the demo. Switch between **EN** and **中文** in the app's header.
+
+## Files
+
+- `index.html`: the phone-frame page. On screens narrower than 600px it sends you straight to `app.html`.
+- `app.html`: the prototype itself.
 
 Demo links:
 - `#tc07`: the student page for cabinet TC-07 (Library 1F). Hot Soy Milk is at 9/10, so one wish unlocks it.
@@ -17,6 +22,6 @@ Demo links:
 
 ## Notes
 
-- This is a single HTML file with no build step and no backend. Data is kept in memory and resets when you reload.
+- There is no build step and no backend. Data is kept in memory and resets when you reload.
 - All numbers, locations and brand names are placeholders for the demo.
 - The "AI restock assistant" uses simple rules for now.

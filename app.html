@@ -1,0 +1,728 @@
+<title>Wish Cabinet Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<script>if(window.self!==window.top)document.documentElement.classList.add("framed");</script>
+<style>
+/* Layout: student app = one phone-width column (max 440px): home → category → brand → confirm → done, with "type it" and "photo" fallbacks. Operator console = wider column (max 1080px) drilling down all locations → location → cabinet. A thin demo bar switches between them. */
+:root{
+  --page:#E6EBDA; --bg:#F6F8F0; --surface:#FFFFFF; --surface-2:#EEF2E4; --line:#DCE3CF;
+  --ink:#17200F; --muted:#56644B; --accent:#B4EE32; --accent-ink:#17200F; --accent-strong:#3B7300;
+  --wish:#D9265F; --wish-soft:#FCE7EE; --ok:#2F7D32; --ok-soft:#E3F3DF; --warn:#A35C00; --warn-soft:#FBEEDB;
+  --heat:150,205,30;
+  --f-display:"Bricolage Grotesque","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-body:"Figtree","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --page:#0B0F09; --bg:#121810; --surface:#1A2217; --surface-2:#222C1E; --line:#2E3A29;
+  --ink:#EDF2E5; --muted:#A6B39B; --accent:#C2F54C; --accent-ink:#121810; --accent-strong:#C2F54C;
+  --wish:#FF6E9B; --wish-soft:#3A1A26; --ok:#8BD98E; --ok-soft:#1D3220; --warn:#F5B65C; --warn-soft:#3A2A14; --heat:170,230,60; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --page:#0B0F09; --bg:#121810; --surface:#1A2217; --surface-2:#222C1E; --line:#2E3A29;
+  --ink:#EDF2E5; --muted:#A6B39B; --accent:#C2F54C; --accent-ink:#121810; --accent-strong:#C2F54C;
+  --wish:#FF6E9B; --wish-soft:#3A1A26; --ok:#8BD98E; --ok-soft:#1D3220; --warn:#F5B65C; --warn-soft:#3A2A14; --heat:170,230,60; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.app{max-width:440px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
+.app.wide{max-width:1080px}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent-strong);outline-offset:2px;border-radius:10px}
+
+.demobar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:8px;background:var(--ink);color:var(--bg);font-size:12.5px;flex-wrap:wrap}
+.demobar span{font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:.8}
+.seg{display:flex;background:rgba(255,255,255,.12);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;color:inherit;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:600;opacity:.75}
+.seg button[aria-pressed="true"]{background:var(--bg);color:var(--ink);opacity:1}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.mark{width:34px;height:34px;border-radius:11px;background:var(--accent);display:grid;place-items:center;flex:none;border:0}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:18px;letter-spacing:-.2px;display:block}
+.brand small{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.lang{display:flex;background:var(--surface-2);border-radius:999px;padding:3px;flex:none}
+.lang button{border:0;background:transparent;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+
+main{flex:1;display:flex;flex-direction:column;gap:20px;padding-block:20px 28px}
+h1{font-family:var(--f-display);font-weight:800;font-size:40px;line-height:1.02;letter-spacing:-1px;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--wish)}
+h2{font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1.1;letter-spacing:-.4px;margin:0;text-wrap:balance}
+h3{margin:0;font-size:16px;font-weight:700}
+.lead{color:var(--muted);margin:8px 0 0;max-width:42ch}
+.fine{font-size:12.5px;color:var(--muted);margin:0}
+.step-tag{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+
+.btn{border:0;border-radius:16px;padding:15px 18px;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;transition:transform .12s ease;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--wish);color:#fff}
+.btn.primary[disabled]{opacity:.45;cursor:default}
+.btn.lime{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+.btn.outline{background:var(--surface);border:1.5px solid var(--line);color:var(--ink)}
+.btn.small{padding:10px 14px;font-size:14px;border-radius:12px;width:auto}
+.btn.demo{background:transparent;border:1.5px dashed var(--line);color:var(--muted);font-size:14px}
+.row-btns{display:flex;gap:10px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;min-width:0}
+.item{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.icon{width:44px;height:44px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;flex:none;overflow:hidden}
+.icon svg{width:26px;height:26px}
+.icon img{width:100%;height:100%;object-fit:cover}
+.meta{min-width:0}
+.meta b{display:block;font-size:15px;font-weight:600;line-height:1.25}
+.meta small{display:block;color:var(--muted);font-size:12.5px}
+.bar{height:7px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-top:7px}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent-strong));transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.bar.done i{background:var(--ok)}
+.count{font-size:12px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+.wish-btn{border:1.5px solid var(--wish);background:transparent;color:var(--wish);font-weight:700;font-size:13.5px;padding:7px 12px;border-radius:999px;white-space:nowrap}
+.wish-btn[disabled]{border-color:var(--line);color:var(--muted);cursor:default}
+.pill{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap;display:inline-block}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.new{background:var(--surface-2);color:var(--muted)}
+.pill.hot{background:var(--wish-soft);color:var(--wish)}
+.where{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:6px 10px;border-radius:999px;background:var(--surface-2);color:var(--muted);align-self:flex-start}
+.where i{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+
+.backbar{display:flex;align-items:center;gap:10px}
+.back{border:0;background:var(--surface-2);width:38px;height:38px;border-radius:12px;font-size:18px;flex:none}
+.cat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cat-card{display:flex;flex-direction:column;align-items:flex-start;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px;text-align:left;min-width:0}
+.cat-card:hover{border-color:var(--accent-strong)}
+.cat-card .icon{width:48px;height:48px}
+.cat-card b{font-size:15.5px;line-height:1.2}
+.cat-card small{font-size:12.5px;color:var(--muted)}
+.brand-group{padding-top:4px}
+.brand-group+.brand-group{border-top:1px solid var(--line);margin-top:6px;padding-top:12px}
+.brand-name{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.brand-group .item:first-of-type{border-top:0}
+.fallback{display:flex;flex-direction:column;gap:10px}
+.fallback h3{font-size:17px}
+.fallback .row-btns .btn{font-size:15px;padding:13px 12px}
+.photo-prev{width:100%;max-height:260px;object-fit:contain;border-radius:16px;background:var(--surface-2)}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px}
+.field input:focus{outline:0;border-color:var(--accent-strong)}
+.suggest-list{display:flex;flex-direction:column;gap:6px}
+.sugg{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:8px 10px;text-align:left;width:100%}
+.sugg .icon{width:36px;height:36px}
+.sugg .icon svg{width:22px;height:22px}
+.sugg small{display:block;color:var(--muted);font-size:12px}
+.sugg em{margin-left:auto;font-style:normal;font-size:12.5px;font-weight:700;color:var(--wish)}
+
+.done-hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:12px}
+.tick{width:76px;height:76px;border-radius:50%;background:var(--ok-soft);display:grid;place-items:center;animation:pop .5s cubic-bezier(.2,1.4,.4,1);overflow:hidden}
+.tick.unlocked{background:var(--accent)}
+.tick img{width:100%;height:100%;object-fit:cover}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.big-bar{height:14px}
+.big-count{display:flex;justify-content:space-between;gap:12px;margin-top:8px;font-size:14px;font-variant-numeric:tabular-nums}
+.big-count b{font-family:var(--f-display);font-size:22px}
+.promise{display:flex;gap:10px;align-items:flex-start;font-size:14.5px}
+.promise svg{flex:none;margin-top:2px;color:var(--ok)}
+
+.sheet-wrap{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;background:rgba(10,14,8,.5)}
+.sheet{width:100%;max-width:440px;background:var(--surface);border-radius:24px 24px 0 0;padding:10px 18px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px;animation:up .28s ease-out;max-height:92vh;overflow-y:auto}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 0}
+.sel{display:flex;gap:12px;align-items:center;background:var(--surface-2);border-radius:16px;padding:12px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:600}
+.toggle input{width:22px;height:22px;accent-color:var(--wish);flex:none}
+
+/* hero wish button */
+.wish-cta{position:relative;overflow:hidden;border:0;border-radius:22px;padding:18px 18px 18px 16px;display:flex;align-items:center;gap:14px;width:100%;text-align:left;color:#fff;background:linear-gradient(120deg,#FF3D7F 0%,#E0245E 45%,#FF7A3D 100%);box-shadow:0 12px 28px rgba(217,38,95,.35),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .15s ease;animation:breathe 2.8s ease-in-out infinite}
+.wish-cta:hover{transform:translateY(-2px)}
+.wish-cta:active{transform:scale(.98)}
+.wish-cta::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:35%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-18deg);animation:shine 3.2s ease-in-out infinite;pointer-events:none}
+.wish-cta .orb{width:54px;height:54px;border-radius:17px;background:rgba(255,255,255,.2);display:grid;place-items:center;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+.wish-cta .orb svg{width:30px;height:30px;animation:twinkle 2.8s ease-in-out infinite}
+.wish-cta .txt{min-width:0}
+.wish-cta .txt b{display:block;font-family:var(--f-display);font-weight:800;font-size:23px;letter-spacing:-.3px;line-height:1.1}
+.wish-cta .txt small{display:block;font-size:13px;opacity:.92;margin-top:3px}
+.wish-cta .arrow{margin-left:auto;width:42px;height:42px;border-radius:50%;background:#fff;color:#D9265F;display:grid;place-items:center;font-size:20px;font-weight:800;flex:none;box-shadow:0 4px 10px rgba(0,0,0,.15)}
+.spark{position:absolute;width:6px;height:6px;border-radius:50%;background:#fff;opacity:.85;animation:twinkle 2.4s ease-in-out infinite;pointer-events:none}
+@keyframes shine{0%,55%{left:-40%}100%{left:130%}}
+@keyframes breathe{0%,100%{box-shadow:0 12px 28px rgba(217,38,95,.30),inset 0 1px 0 rgba(255,255,255,.35)}50%{box-shadow:0 16px 40px rgba(217,38,95,.55),inset 0 1px 0 rgba(255,255,255,.35)}}
+@keyframes twinkle{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.15) rotate(10deg)}}
+
+/* operator */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13.5px;color:var(--muted)}
+.crumbs button{border:0;background:none;padding:2px 0;color:var(--accent-strong);font-weight:700}
+.crumbs b{color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
+.tile span{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+.tile b{display:block;font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums}
+.rows{display:flex;flex-direction:column}
+.row .num.hide-sm{display:none}
+.row{display:grid;grid-template-columns:1fr auto 20px;gap:16px;align-items:center;padding:14px 4px;border:0;border-top:1px solid var(--line);background:none;text-align:left;width:100%}
+.row:first-child{border-top:0}
+.row:hover{background:var(--surface-2)}
+.row .name b{display:block;font-size:16px}
+.row .name small{display:block;font-size:12.5px;color:var(--muted)}
+.row .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;font-size:17px}
+.row .num small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
+.row .chev{color:var(--muted);font-size:20px}
+.mix{display:flex;height:8px;border-radius:99px;overflow:hidden;margin-top:8px;max-width:260px;background:var(--surface-2)}
+.mix i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.heat-wrap{overflow-x:auto}
+table.heat{border-collapse:separate;border-spacing:3px;width:100%;font-variant-numeric:tabular-nums}
+table.heat th{font-size:12.5px;color:var(--muted);font-weight:700;text-align:center;padding:4px}
+table.heat th.rowh{text-align:left;padding:0}
+table.heat th.rowh button{border:0;background:none;text-align:left;padding:4px 0;color:var(--ink);font-weight:700;font-size:13px;line-height:1.2}
+table.heat th.rowh small{display:block;color:var(--muted);font-weight:600;font-size:11.5px}
+table.heat td{border-radius:9px;text-align:center;font-weight:700;font-size:14px;height:40px;min-width:40px;border:1px solid var(--line)}
+table.heat td.peak{outline:2px solid var(--wish);outline-offset:-2px}
+.insight{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--wish);border-radius:14px;padding:12px 14px;font-size:14.5px}
+.two{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
+.plan{display:flex;flex-direction:column;gap:10px;font-size:14.5px}
+.plan .line{display:grid;grid-template-columns:124px 1fr;gap:10px;align-items:baseline}
+.tag{font-size:12px;font-weight:700;padding:3px 8px;border-radius:99px;text-align:center}
+.tag.add{background:var(--ok-soft);color:var(--ok)}
+.tag.rm{background:var(--wish-soft);color:var(--wish)}
+.tag.time{background:var(--warn-soft);color:var(--warn)}
+.req{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.req:first-of-type{border-top:0}
+.req.qrow{grid-template-columns:44px 1fr;row-gap:8px}
+.req.qrow .row-btns{grid-column:2/-1}
+
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:14px;font-size:14px;font-weight:600;z-index:30;width:min(408px,calc(100% - 32px));box-shadow:0 10px 30px rgba(0,0,0,.25);animation:drop .3s ease-out}
+@keyframes drop{from{transform:translate(-50%,-12px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin:0;padding-block:0 16px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:760px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.row{grid-template-columns:1fr auto 20px}.row .num.hide-sm{display:none}}
+@media (max-width:360px){h1{font-size:34px}.fallback .row-btns{flex-direction:column}}
+.framed .demobar{display:none}
+.framed body{margin:0;background:var(--bg)}
+.framed .app{min-height:100vh}
+</style>
+
+<div class="app" id="app">
+  <div class="demobar pad"><span id="demoLabel">Demo view</span>
+    <div class="seg" role="group" aria-label="Demo view">
+      <button type="button" id="modeStudent" data-mode="student" aria-pressed="true">Student app</button>
+      <button type="button" id="modeOps" data-mode="ops" aria-pressed="false">Operator console</button>
+    </div>
+  </div>
+  <header class="top pad">
+    <div class="brand">
+      <button class="mark" type="button" data-act="home" aria-label="Home"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" fill="#17200F"/></svg></button>
+      <div style="min-width:0"><b id="brandName">Wish Cabinet</b><small id="brandSub"></small></div>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" id="langEn" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" id="langZh" data-lang="zh" aria-pressed="false">中文</button>
+    </div>
+  </header>
+  <main id="view" class="pad" aria-live="polite"></main>
+  <p class="foot pad" id="foot"></p>
+</div>
+<input type="file" id="photoInput" accept="image/*" class="vh" aria-label="Upload a photo" tabindex="-1">
+<div id="sheetRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+(function(){
+const T = {
+  en:{
+    brand:"Wish Cabinet", demo:"Demo view", modeStudent:"Student app", modeOps:"Operator console", console:"Operator console",
+    scannedAt:"You scanned", h1a:"Didn’t find it?", h1b:"Make a wish.",
+    lead:"Pick what you wanted. When enough people at this cabinet wish for it, it’s stocked at the next restock and we message you.",
+    makeWish:"Make a wish", wishSub:"3 seconds · tell us what’s missing", here:c=>`Wishes at ${c}`, seeOps:"Demo: see this cabinet in the operator console",
+    step1:"Step 1 of 2", step2:"Step 2 of 2", catTitle:"What kind of product?", nProducts:n=>`${n} products`,
+    brandTitle:c=>c, brandLead:"Pick the brand and product you wanted.",
+    cantFind:"Can’t find it?", cantLead:"Tell us another way. We’ll add it to this cabinet’s list.",
+    typeBtn:"Type the brand", photoBtn:"Upload a photo",
+    wish:"+ Wish", wished:"Wished ✓", stOk:"Unlocked", of:"of",
+    confirmTitle:"Confirm your wish", notify:"Message me when it arrives", cancel:"Cancel", submit:"Make wish",
+    typeTitle:"Type the brand or product", typeLabel:"Brand or product name", typePh:"e.g. coconut water",
+    already:"Already on the list", tapWish:"Wish", requestNew:q=>`Request “${q}”`, sendReq:"Send request",
+    photoTitle:"Your photo", photoName:"Product name (optional)", photoNamePh:"e.g. the name on the label",
+    photoNote:"Prototype: the photo stays on this page. In the full version, AI reads the label and the operator checks it.",
+    photoBad:"That file isn’t an image. Try a photo of the product.",
+    counted:"Wish counted!", unlockedNow:"You unlocked it!", more:n=>`${n} more to unlock`, arriving:"Stocked at the next restock",
+    reqDone:"Request sent!", reqLead:"We’ll check it and add it to this cabinet’s list.",
+    reqCount:n=>`${n} ${n===1?"person":"people"} at this cabinet asked for this`, reqGoal:"At 10 requests it goes on the wish list.",
+    photoReq:"Photo request",
+    promiseOn:"We’ll message you when it arrives.", promiseOff:"Check this page after the next restock.",
+    couponLine:"10% off is applied automatically when you buy it.",
+    share:"Share with friends", copied:"Copied. Paste it in your group chat.", back:"Back to this cabinet",
+    shareText:(n,left)=>`I wished for ${n} at the Wish Cabinet. ${left>0?left+" more wishes and it gets stocked!":"We unlocked it!"} Scan the sticker on the cabinet to help.`,
+    foot:"Prototype · demo numbers · locations, brands and products are placeholders",
+    allLoc:"All locations", allLead:"Every wish carries the cabinet whose QR code was scanned. Pick a location to see its cabinets.",
+    tLoc:"Locations", tCab:"Cabinets", tWish:"Wishes this week", tUnl:"Products unlocked", tReq:"New requests", tReady:"Ready to restock", queueTitle:"Unlocked: ready to restock", queueLead:"These products reached 10 wishes. Stock them at the next restock, then mark them so every wisher gets a message.", queueEmpty:"Nothing waiting. Products appear here the moment they unlock.", atNow:"Unlocked just now", atToday:"Unlocked today 09:12", markStocked:"Mark restocked", openCab:"Open", stockedToast:c=>`Marked as restocked. Everyone who wished at ${c} gets a message.`, readyN:n=>`${n} ready to restock`, stStock:"In stock", newBadge:"New",
+    cabinets:n=>`${n} ${n===1?"cabinet":"cabinets"}`, wishesShort:"wishes", topCat:"Top demand",
+    locLead:"Each row is one cabinet. The outlined cell is what that cabinet wants most. Tap a cabinet for its restock plan.",
+    heatTitle:"Wishes by category", cabListTitle:"Cabinets", topWish:"Top wish",
+    cabTopTitle:"What people want here", planTitle:"Next restock plan", planLead:"Rule-based demo of the AI restock assistant.",
+    add:"Add", remove:"Remove", time:"Restock before", soldN:n=>`${n} sold in 7 days`, peakAt:"busiest at",
+    reqTitle:"New requests from students", reqNote:"Typed names and photos for products not in the catalog yet.", reqEmpty:"No new requests yet.",
+    reqTyped:"Typed", reqPhoto:"Photo", reqTimes:n=>`× ${n}`,
+    openStudent:"Open this cabinet’s student page", now:c=>`Now at ${c}`, reset:"Reset demo", resetDone:"Demo reset.",
+    insAll:(a,ca,b,cb)=>`${a} mostly wants ${ca}, while ${b} mostly wants ${cb}. One product plan for every location misses this.`,
+    insLoc:(p,hi,hn,lo,ln)=>`${p}: ${hn} wishes at ${hi}, only ${ln} at ${lo}. Stock by cabinet, not by campus.`,
+    types:{campus:"Campus",office:"Office park",gym:"Gym"},
+    zone:{study:"Study area",class:"Teaching area",living:"Living area",sports:"Sports area",office:"Office",gym:"Gym floor"},
+    cats:{coffee:"Coffee & energy",tea:"Tea & milk",hot:"Hot drinks",water:"Water & sparkling",snacks:"Snacks & food"},
+    catsShort:{coffee:"Coffee",tea:"Tea",hot:"Hot",water:"Water",snacks:"Snacks"}
+  },
+  zh:{
+    brand:"心愿柜", demo:"演示视图", modeStudent:"学生端", modeOps:"运营后台", console:"运营后台",
+    scannedAt:"扫码位置", h1a:"没找到想要的？", h1b:"许个愿吧。",
+    lead:"选出你想要的商品。当这台柜子的足够多人许愿，下次补货就会上架，并通知你。",
+    makeWish:"去许愿", wishSub:"3秒完成 · 告诉我们缺什么", here:c=>`${c} 的心愿`, seeOps:"演示：在运营后台查看这台柜子",
+    step1:"第 1 步，共 2 步", step2:"第 2 步，共 2 步", catTitle:"你想要哪类商品？", nProducts:n=>`${n} 款商品`,
+    brandTitle:c=>c, brandLead:"选择你想要的品牌和商品。",
+    cantFind:"找不到？", cantLead:"换个方式告诉我们，我们会加入本柜的心愿单。",
+    typeBtn:"输入品牌", photoBtn:"上传照片",
+    wish:"+ 许愿", wished:"已许愿 ✓", stOk:"已解锁", of:"/",
+    confirmTitle:"确认你的心愿", notify:"到货时通知我", cancel:"取消", submit:"确认许愿",
+    typeTitle:"输入品牌或商品名称", typeLabel:"品牌或商品名称", typePh:"例如 椰子水",
+    already:"已在列表中", tapWish:"许愿", requestNew:q=>`申请「${q}」`, sendReq:"提交申请",
+    photoTitle:"你的照片", photoName:"商品名称（选填）", photoNamePh:"例如 包装上的名字",
+    photoNote:"原型演示：照片只保留在本页面。完整版中由AI识别包装，再由运营方确认。",
+    photoBad:"这不是图片文件，请上传商品照片。",
+    counted:"心愿已记录！", unlockedNow:"你帮它解锁了！", more:n=>`还差 ${n} 个心愿解锁`, arriving:"将在下次补货时上架",
+    reqDone:"申请已提交！", reqLead:"我们会确认后加入本柜的心愿单。",
+    reqCount:n=>`本柜已有 ${n} 人申请`, reqGoal:"达到 10 人申请后进入心愿单。",
+    photoReq:"照片申请",
+    promiseOn:"到货后我们会通知你。", promiseOff:"下次补货后回来看看。",
+    couponLine:"购买时自动享受9折。",
+    share:"分享给朋友", copied:"已复制，粘贴到群聊吧。", back:"返回本柜",
+    shareText:(n,left)=>`我在心愿柜为「${n}」许了愿。${left>0?"还差 "+left+" 个心愿就能上架！":"我们解锁啦！"}扫描柜子上的贴纸一起助力吧。`,
+    foot:"原型演示 · 示例数据 · 位置、品牌和商品为占位",
+    allLoc:"全部点位", allLead:"每个心愿都带有被扫描柜子的标签。选择一个点位查看它的柜子。",
+    tLoc:"点位", tCab:"柜子", tWish:"本周心愿", tUnl:"已解锁商品", tReq:"新申请", tReady:"待补货", queueTitle:"已解锁：等待补货", queueLead:"这些商品已达到 10 个心愿。下次补货时上架，然后标记完成，所有许愿的人都会收到通知。", queueEmpty:"暂无等待中的商品。商品一解锁就会出现在这里。", atNow:"刚刚解锁", atToday:"今天 09:12 解锁", markStocked:"标记已补货", openCab:"查看", stockedToast:c=>`已标记补货，在${c}许愿的人会收到通知。`, readyN:n=>`${n} 个待补货`, stStock:"已上架", newBadge:"新",
+    cabinets:n=>`${n} 台柜子`, wishesShort:"心愿", topCat:"最大需求",
+    locLead:"每一行是一台柜子，描边格子是它最想要的品类。点击柜子查看补货方案。",
+    heatTitle:"各品类心愿数", cabListTitle:"柜子", topWish:"最热心愿",
+    cabTopTitle:"这里的人想要什么", planTitle:"下次补货方案", planLead:"AI补货助手的规则演示。",
+    add:"新增", remove:"下架", time:"补货时间早于", soldN:n=>`7天售出 ${n} 件`, peakAt:"高峰",
+    reqTitle:"学生的新申请", reqNote:"目录中还没有的商品：手动输入的名称和照片。", reqEmpty:"暂无新申请。",
+    reqTyped:"输入", reqPhoto:"照片", reqTimes:n=>`× ${n}`,
+    openStudent:"打开这台柜子的学生页面", now:c=>`已切换到 ${c}`, reset:"重置演示", resetDone:"演示已重置。",
+    insAll:(a,ca,b,cb)=>`${a}最想要${ca}，而${b}最想要${cb}。所有点位用同一套选品会错过这一点。`,
+    insLoc:(p,hi,hn,lo,ln)=>`「${p}」在${hi}有 ${hn} 个心愿，在${lo}只有 ${ln} 个。要按柜子选品，而不是按校区。`,
+    types:{campus:"校园",office:"办公园区",gym:"健身房"},
+    zone:{study:"学习区",class:"教学区",living:"生活区",sports:"运动区",office:"办公区",gym:"健身区"},
+    cats:{coffee:"咖啡和功能饮料",tea:"茶饮和奶制品",hot:"热饮",water:"水和气泡水",snacks:"零食和食品"},
+    catsShort:{coffee:"咖啡",tea:"茶饮",hot:"热饮",water:"饮用水",snacks:"零食"}
+  }
+};
+const CAT_KEYS = ["coffee","tea","hot","water","snacks"];
+const CAT_COLORS = {coffee:"#7A4B2A", tea:"#6FA84A", hot:"#E0A33A", water:"#3FA7DE", snacks:"#D9542B"};
+const CAT_ICON = {coffee:{icon:"cup",c:"#7A4B2A"}, tea:{icon:"bottle",c:"#6FA84A"}, hot:{icon:"cup",c:"#E0A33A"}, water:{icon:"bottle",c:"#3FA7DE"}, snacks:{icon:"bag",c:"#D9542B"}};
+const REQ_GOAL = 10;
+
+const SITES = [
+  {id:"tc", type:"campus", en:"XJTLU Taicang Campus", zh:"西浦太仓校区"},
+  {id:"sz", type:"campus", en:"XJTLU Suzhou Campus", zh:"西浦苏州校区"},
+  {id:"op", type:"office", en:"Taicang Science Park", zh:"太仓科技园"},
+  {id:"gy", type:"gym", en:"Suzhou City Gym", zh:"苏州城市健身房"}
+];
+const CABS = [
+  {id:"TC-07", site:"tc", en:"Library 1F", zh:"图书馆一楼", zone:"study", peak:"20:00", slow:{en:"Ginger Soda",zh:"姜汁汽水",n:2}},
+  {id:"TC-05", site:"tc", en:"Teaching Building B", zh:"教学楼B", zone:"class", peak:"09:50", slow:{en:"Large Cola 1.25L",zh:"大瓶可乐",n:1}},
+  {id:"TC-03", site:"tc", en:"Dorm A Lobby", zh:"宿舍A大堂", zone:"living", peak:"22:00", slow:{en:"Black Coffee Can",zh:"罐装黑咖啡",n:3}},
+  {id:"TC-12", site:"tc", en:"Sports Hall", zh:"体育馆", zone:"sports", peak:"17:30", slow:{en:"Milk Tea 500ml",zh:"奶茶",n:2}},
+  {id:"SZ-01", site:"sz", en:"Central Library", zh:"中心图书馆", zone:"study", peak:"21:00", slow:{en:"Ginger Soda",zh:"姜汁汽水",n:1}},
+  {id:"SZ-04", site:"sz", en:"Science Building", zh:"理科楼", zone:"class", peak:"11:50", slow:{en:"Cup Noodles",zh:"杯面",n:2}},
+  {id:"SZ-09", site:"sz", en:"Dorm 3 Lobby", zh:"3号宿舍大堂", zone:"living", peak:"23:00", slow:{en:"Oat Latte",zh:"燕麦拿铁",n:1}},
+  {id:"OP-02", site:"op", en:"Tower A Lobby", zh:"A座大堂", zone:"office", peak:"08:40", slow:{en:"Energy Drink",zh:"能量饮料",n:2}},
+  {id:"OP-06", site:"op", en:"Tower B 12F Pantry", zh:"B座12楼茶水间", zone:"office", peak:"15:00", slow:{en:"Cup Noodles",zh:"杯面",n:1}},
+  {id:"GY-01", site:"gy", en:"Front Desk", zh:"前台", zone:"gym", peak:"19:00", slow:{en:"Hot Soy Milk",zh:"热豆奶",n:0}}
+];
+const PRODUCTS = [
+  {id:"americano", cat:"coffee", icon:"cup", c:"#7A4B2A", en:"Iced Americano", zh:"冰美式咖啡", brand:"Peak Brew", goal:50},
+  {id:"coldbrew", cat:"coffee", icon:"bottle", c:"#4E3423", en:"Cold Brew Coffee", zh:"冷萃咖啡", brand:"Peak Brew", goal:30},
+  {id:"energy", cat:"coffee", icon:"can", c:"#2F7BEA", en:"Energy Drink", zh:"能量饮料", brand:"Volt Up", goal:30},
+  {id:"energyzero", cat:"coffee", icon:"can", c:"#1C4FA3", en:"Zero-Sugar Energy", zh:"无糖能量饮料", brand:"Volt Up", goal:30},
+  {id:"oatlatte", cat:"tea", icon:"cup", c:"#C9A57A", en:"Oat Latte", zh:"燕麦拿铁", brand:"Cloud Oat", goal:30},
+  {id:"oatmilk", cat:"tea", icon:"bottle", c:"#DCC7A1", en:"Oat Milk", zh:"燕麦奶", brand:"Cloud Oat", goal:30},
+  {id:"matcha", cat:"tea", icon:"bottle", c:"#6FA84A", en:"Matcha Milk Tea", zh:"抹茶奶茶", brand:"Green Hill", goal:30},
+  {id:"peach", cat:"tea", icon:"bottle", c:"#F39A7B", en:"Peach Oolong Tea", zh:"白桃乌龙茶", brand:"Leaf & Co.", goal:30},
+  {id:"jasmine", cat:"tea", icon:"bottle", c:"#E9E2A8", en:"Jasmine Green Tea", zh:"茉莉绿茶", brand:"Leaf & Co.", goal:30},
+  {id:"soymilk", cat:"hot", icon:"cup", c:"#E2C98F", en:"Hot Soy Milk", zh:"热豆奶", brand:"Sunny Farm", goal:30},
+  {id:"datemilk", cat:"hot", icon:"cup", c:"#B5523B", en:"Hot Red Date Milk", zh:"热红枣牛奶", brand:"Sunny Farm", goal:30},
+  {id:"cocoa", cat:"hot", icon:"cup", c:"#6B3E26", en:"Hot Cocoa", zh:"热可可", brand:"Cozy Cup", goal:30},
+  {id:"lemon", cat:"water", icon:"bottle", c:"#F2C230", en:"Lemon Sparkling 1L", zh:"柠檬气泡水 1L", brand:"Bubble Lab", goal:30},
+  {id:"lime", cat:"water", icon:"bottle", c:"#8CC63F", en:"Lime Sparkling", zh:"青柠气泡水", brand:"Bubble Lab", goal:30},
+  {id:"electro", cat:"water", icon:"bottle", c:"#4AB3E8", en:"Electrolyte Water", zh:"电解质水", brand:"Pulse", goal:30},
+  {id:"mineral", cat:"water", icon:"bottle", c:"#9CD3EE", en:"Mineral Water 1.5L", zh:"矿泉水 1.5L", brand:"Clear Spring", goal:30},
+  {id:"noodles", cat:"snacks", icon:"bag", c:"#D9542B", en:"Cup Noodles", zh:"杯面", brand:"Night Bowl", goal:20},
+  {id:"crisps", cat:"snacks", icon:"bag", c:"#3E9C6E", en:"Seaweed Crisps", zh:"海苔脆片", brand:"Crunch Co.", goal:20},
+  {id:"bar", cat:"snacks", icon:"bar", c:"#B5743A", en:"Protein Bar", zh:"蛋白棒", brand:"Morning Grain", goal:20},
+  {id:"sandwich", cat:"snacks", icon:"bar", c:"#E8C26A", en:"Egg Sandwich", zh:"鸡蛋三明治", brand:"Morning Grain", goal:20}
+];
+PRODUCTS.forEach(p=>{ p.goal = 10; });
+const OVERRIDE = {
+  "TC-07":{soymilk:9, americano:8, energy:6},
+  "TC-05":{americano:10, oatlatte:6},
+  "TC-03":{noodles:10, lemon:7, crisps:5, americano:2},
+  "TC-12":{electro:10, bar:6, americano:0}
+};
+const SEED_REQ = {
+  "TC-07":[{type:"text", name:"Coconut Water", n:6},{type:"text", name:"Yogurt Drink", n:3}],
+  "TC-03":[{type:"text", name:"Instant Rice Bowl", n:8},{type:"text", name:"Coconut Water", n:2}],
+  "TC-12":[{type:"text", name:"Sports Gel", n:4}]
+};
+const ZONE_W = {
+  study:{coffee:.9,tea:.8,hot:.6,water:.2,snacks:.3}, class:{coffee:1,tea:.7,hot:.4,water:.2,snacks:.2},
+  living:{coffee:.3,tea:.6,hot:.4,water:.6,snacks:.95}, sports:{coffee:.2,tea:.15,hot:.1,water:1,snacks:.6},
+  office:{coffee:1,tea:.75,hot:.5,water:.25,snacks:.35}, gym:{coffee:.15,tea:.1,hot:.05,water:1,snacks:.7}
+};
+function seeded(s){ let h=2166136261; for(const ch of s){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); } return ((h>>>0)%1000)/1000; }
+
+let counts, requests, state, unlocks, stocked;
+function fresh(){
+  counts = {}; requests = {};
+  CABS.forEach(c=>{
+    counts[c.id] = {};
+    PRODUCTS.forEach(p=>{ counts[c.id][p.id] = Math.round(ZONE_W[c.zone][p.cat] * p.goal * (0.12 + 0.5*seeded(c.id+p.id))); });
+    Object.assign(counts[c.id], OVERRIDE[c.id]||{});
+    requests[c.id] = (SEED_REQ[c.id]||[]).map(r=>({...r}));
+  });
+  unlocks = []; stocked = new Set();
+  CABS.forEach(c=>PRODUCTS.forEach(p=>{ if(counts[c.id][p.id]>=p.goal) unlocks.push({cab:c.id, id:p.id, at:"today"}); }));
+  const keep = state ? {lang:state.lang, mode:state.mode, cab:state.cab} : {lang:"en", mode:"student", cab:"TC-07"};
+  state = {...keep, view:"home", cat:null, wished:new Set(), notify:true, pending:null, last:null, lastUnlocked:false, lastReq:null, photo:null, typed:"", site:null, opsCab:null};
+}
+fresh();
+try{ const l = localStorage.getItem("wishcab-lang"); if(l==="zh"||l==="en") state.lang=l; }catch(e){}
+
+const $ = s => document.querySelector(s);
+const t = k => T[state.lang][k];
+const esc = s => String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const L = o => o[state.lang] || o.en;
+const cabOf = id => CABS.find(c=>c.id===id);
+const siteOf = id => SITES.find(s=>s.id===id);
+const prod = id => PRODUCTS.find(p=>p.id===id);
+const cnt = (cab,id) => counts[cab][id] || 0;
+const pct = (cab,p) => Math.min(100, Math.round(cnt(cab,p.id)/p.goal*100));
+const done = (cab,p) => cnt(cab,p.id) >= p.goal;
+const key = (cab,id) => cab+"|"+id;
+const cabTotal = cab => PRODUCTS.reduce((s,p)=>s+cnt(cab,p.id),0);
+const catTotal = (cab,cat) => PRODUCTS.filter(p=>p.cat===cat).reduce((s,p)=>s+cnt(cab,p.id),0);
+const siteCabs = sid => CABS.filter(c=>c.site===sid);
+const siteCat = (sid,cat) => siteCabs(sid).reduce((s,c)=>s+catTotal(c.id,cat),0);
+const siteTotal = sid => siteCabs(sid).reduce((s,c)=>s+cabTotal(c.id),0);
+const topCatOf = get => CAT_KEYS.map(k=>({k,n:get(k)})).sort((a,b)=>b.n-a.n)[0].k;
+const unlockedIn = cabs => cabs.reduce((s,c)=>s+PRODUCTS.filter(p=>done(c.id,p)).length,0);
+const reqCount = cabs => cabs.reduce((s,c)=>s+requests[c.id].reduce((a,r)=>a+r.n,0),0);
+const cabLabel = c => `${L(c)} · ${c.id}`;
+const norm = s => s.trim().toLowerCase().replace(/\s+/g," ");
+const queue = cabs => unlocks.filter(u=>cabs.some(c=>c.id===u.cab) && !stocked.has(key(u.cab,u.id)));
+
+function icon(p){
+  const c = p.c;
+  if(p.icon==="cup") return `<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="4" width="16" height="3.2" rx="1.4" fill="#3b2a1d" opacity=".85"/><path d="M6.4 7.6h13.2l-1.6 14.2a1.8 1.8 0 0 1-1.8 1.6H9.8A1.8 1.8 0 0 1 8 21.8z" fill="${c}"/><rect x="7.6" y="12" width="10.8" height="3.4" fill="#fff" opacity=".55"/></svg>`;
+  if(p.icon==="can") return `<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="7" y="3.5" width="12" height="19" rx="3" fill="${c}"/><rect x="7" y="9" width="12" height="5" fill="#fff" opacity=".55"/><rect x="9" y="2.6" width="8" height="2" rx="1" fill="#888"/></svg>`;
+  if(p.icon==="bag") return `<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M6 5h14l-1 3 1.6 13.4a1.5 1.5 0 0 1-1.5 1.6H6.9a1.5 1.5 0 0 1-1.5-1.6L7 8z" fill="${c}"/><rect x="8" y="11" width="10" height="5" rx="1" fill="#fff" opacity=".6"/></svg>`;
+  if(p.icon==="bar") return `<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="9" width="20" height="8" rx="2" fill="${c}" transform="rotate(-18 13 13)"/><rect x="8" y="10.5" width="9" height="5" rx="1" fill="#fff" opacity=".6" transform="rotate(-18 13 13)"/></svg>`;
+  if(p.icon==="text") return `<svg viewBox="0 0 26 26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 7h14M13 7v13"/></svg>`;
+  if(p.icon==="camera") return `<svg viewBox="0 0 26 26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 9h4l2-3h6l2 3h4v11H4z"/><circle cx="13" cy="14" r="3.5"/></svg>`;
+  return `<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="10" y="2.5" width="6" height="3" rx="1" fill="#333"/><path d="M9.5 5.5h7l1.5 3v13a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-13z" fill="${c}"/><rect x="8" y="12" width="10" height="5" fill="#fff" opacity=".6"/></svg>`;
+}
+
+/* ---------- student ---------- */
+function itemRow(cab,p,showBrand=true){
+  const right = done(cab,p) ? `<span class="pill ok">${stocked.has(key(cab,p.id))?t("stStock"):t("stOk")}</span>`
+    : state.wished.has(key(cab,p.id)) ? `<button class="wish-btn" type="button" disabled>${t("wished")}</button>`
+    : `<button class="wish-btn" type="button" data-act="choose" data-id="${p.id}">${t("wish")}</button>`;
+  return `<div class="item"><div class="icon">${icon(p)}</div>
+    <div class="meta"><b>${esc(L(p))}</b>${showBrand?`<small>${esc(p.brand)}</small>`:""}
+      <div class="bar ${done(cab,p)?"done":""}"><i style="width:${pct(cab,p)}%"></i></div>
+      <div class="count">${Math.min(cnt(cab,p.id),p.goal)} ${t("of")} ${p.goal}</div></div>${right}</div>`;
+}
+function fallbackCard(){
+  return `<div class="card fallback"><div><h3>${t("cantFind")}</h3><p class="fine" style="margin-top:4px">${t("cantLead")}</p></div>
+    <div class="row-btns"><button class="btn outline" type="button" data-act="type">✎ ${t("typeBtn")}</button><button class="btn outline" type="button" data-act="photo">📷 ${t("photoBtn")}</button></div></div>`;
+}
+function viewHome(){
+  const cab = state.cab, c = cabOf(cab);
+  const top = PRODUCTS.filter(p=>!done(cab,p)).sort((a,b)=>pct(cab,b)-pct(cab,a)).slice(0,4);
+  return `<span class="where"><i></i>${t("scannedAt")}: ${esc(L(siteOf(c.site)))}</span>
+    <div><h1>${t("h1a")}<br><em>${t("h1b")}</em></h1><p class="lead">${t("lead")}</p></div>
+    <button class="wish-cta" type="button" data-act="go" data-view="cats">
+      <span class="spark" style="top:12px;right:78px"></span><span class="spark" style="bottom:13px;right:120px;width:4px;height:4px;animation-delay:.8s"></span><span class="spark" style="top:22px;left:58%;width:3px;height:3px;animation-delay:1.5s"></span>
+      <span class="orb" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.8l2.7 5.8 6.3.7-4.7 4.3 1.3 6.2L12 16.7l-5.6 3.1 1.3-6.2L3 9.3l6.3-.7z"/></svg></span>
+      <span class="txt"><b>${t("makeWish")}</b><small>${t("wishSub")}</small></span>
+      <span class="arrow" aria-hidden="true">→</span></button>
+    <div class="card"><h3>${esc(t("here")(cabLabel(c)))}</h3><div>${top.map(p=>itemRow(cab,p)).join("")}</div></div>
+    <button class="btn demo" type="button" data-act="ops-this">${t("seeOps")} →</button>`;
+}
+function viewCats(){
+  return `<div class="backbar"><button class="back" type="button" data-act="go" data-view="home" aria-label="Back">←</button><div><div class="step-tag">${t("step1")}</div><h2>${t("catTitle")}</h2></div></div>
+    <div class="cat-grid">${CAT_KEYS.map(k=>`<button class="cat-card" type="button" data-act="cat" data-cat="${k}"><span class="icon">${icon(CAT_ICON[k])}</span><span><b>${esc(t("cats")[k])}</b><small style="display:block">${t("nProducts")(PRODUCTS.filter(p=>p.cat===k).length)}</small></span></button>`).join("")}</div>
+    ${fallbackCard()}`;
+}
+function viewBrands(){
+  const cab = state.cab, k = state.cat;
+  const list = PRODUCTS.filter(p=>p.cat===k);
+  const brands = [...new Set(list.map(p=>p.brand))];
+  return `<div class="backbar"><button class="back" type="button" data-act="go" data-view="cats" aria-label="Back">←</button><div><div class="step-tag">${t("step2")}</div><h2>${esc(t("cats")[k])}</h2></div></div>
+    <p class="lead" style="margin:0">${t("brandLead")}</p>
+    <div class="card">${brands.map(b=>`<div class="brand-group"><div class="brand-name">${esc(b)}</div>${list.filter(p=>p.brand===b).map(p=>itemRow(cab,p,false)).join("")}</div>`).join("")}</div>
+    ${fallbackCard()}`;
+}
+function viewDone(){
+  const cab = state.cab;
+  const check = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+  const promises = `<div class="card" style="display:flex;flex-direction:column;gap:8px"><div class="promise">${check}<span>${state.notify?t("promiseOn"):t("promiseOff")}</span></div><div class="promise">${check}<span>${t("couponLine")}</span></div></div>`;
+  const tail = `<button class="btn primary" type="button" data-act="share">${t("share")}</button><button class="btn ghost" type="button" data-act="go" data-view="home">${t("back")}</button><button class="btn demo" type="button" data-act="ops-this">${t("seeOps")} →</button>`;
+  if(state.lastReq){
+    const r = state.lastReq;
+    return `<div class="done-hero"><div class="tick">${r.img?`<img src="${r.img}" alt="">`:`<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ok)"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`}</div>
+      <h2>${t("reqDone")}</h2><p class="lead" style="margin:0">${esc(r.name || t("photoReq"))} · ${esc(cabLabel(cabOf(cab)))}</p></div>
+      <div class="card"><div class="bar big-bar"><i id="bigBar" style="width:${Math.min(100,(r.n-1)/REQ_GOAL*100)}%" data-to="${Math.min(100,r.n/REQ_GOAL*100)}"></i></div>
+        <div class="big-count"><span><b>${r.n}</b> / ${REQ_GOAL}</span><span>${t("reqCount")(r.n)}</span></div>
+        <p class="fine" style="margin-top:8px">${t("reqLead")} ${t("reqGoal")}</p></div>
+      ${promises}${tail}`;
+  }
+  const p = prod(state.last); if(!p) return viewHome();
+  const n = cnt(cab,p.id), left = Math.max(0,p.goal-n), isDone = n>=p.goal;
+  return `<div class="done-hero">
+      <div class="tick ${isDone?"unlocked":""}"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="${isDone?"#17200F":"currentColor"}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="color:var(--ok)"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2>${state.lastUnlocked?t("unlockedNow"):t("counted")}</h2>
+      <p class="lead" style="margin:0">${esc(p.brand)} ${esc(L(p))} · ${esc(cabLabel(cabOf(cab)))}</p></div>
+    <div class="card">
+      <div class="bar big-bar ${isDone?"done":""}"><i id="bigBar" style="width:${Math.min(100,Math.round((n-1)/p.goal*100))}%" data-to="${pct(cab,p)}"></i></div>
+      <div class="big-count"><span><b>${Math.min(n,p.goal)}</b> / ${p.goal}</span><span>${isDone?t("arriving"):t("more")(left)}</span></div>
+    </div>${promises}${tail}`;
+}
+
+/* ---------- operator ---------- */
+function mixBar(get){
+  const tot = CAT_KEYS.reduce((s,k)=>s+get(k),0) || 1;
+  return `<div class="mix" aria-hidden="true">${CAT_KEYS.map(k=>`<i style="width:${(get(k)/tot*100).toFixed(1)}%;background:${CAT_COLORS[k]}"></i>`).join("")}</div>`;
+}
+function legend(){ return `<div class="legend">${CAT_KEYS.map(k=>`<span><i style="background:${CAT_COLORS[k]}"></i>${esc(t("cats")[k])}</span>`).join("")}</div>`; }
+function crumbs(){
+  const parts = [`<button type="button" data-act="ops-all">${t("allLoc")}</button>`];
+  if(state.site) parts.push(state.opsCab ? `<button type="button" data-act="ops-site" data-site="${state.site}">${esc(L(siteOf(state.site)))}</button>` : `<b>${esc(L(siteOf(state.site)))}</b>`);
+  if(state.opsCab) parts.push(`<b>${esc(cabLabel(cabOf(state.opsCab)))}</b>`);
+  return `<nav class="crumbs" aria-label="Breadcrumb">${parts.join(" <span>›</span> ")}</nav>`;
+}
+function opsAll(){
+  const total = SITES.reduce((s,x)=>s+siteTotal(x.id),0);
+  const tops = SITES.map(s=>({s, k:topCatOf(k=>siteCat(s.id,k))}));
+  const a = tops.find(x=>x.s.type==="office") || tops[0], b = tops.find(x=>x.k!==a.k) || tops[1];
+  return `<div><h2>${t("allLoc")}</h2><p class="lead">${t("allLead")}</p></div>
+    <div class="tiles">
+      <div class="tile"><span>${t("tCab")}</span><b>${CABS.length}</b></div>
+      <div class="tile"><span>${t("tWish")}</span><b>${total}</b></div>
+      <div class="tile"><span>${t("tReady")}</span><b style="color:var(--wish)">${queue(CABS).length}</b></div>
+      <div class="tile"><span>${t("tReq")}</span><b>${reqCount(CABS)}</b></div>
+    </div>
+    ${queueCard(CABS,true)}
+    <div class="card"><div class="rows">${SITES.map(s=>{ const k = topCatOf(c=>siteCat(s.id,c)); return `
+      <button class="row" type="button" data-act="ops-site" data-site="${s.id}">
+        <div class="name"><b>${esc(L(s))}</b><small>${t("types")[s.type]} · ${t("cabinets")(siteCabs(s.id).length)}${queue(siteCabs(s.id)).length?` · <span style="color:var(--wish);font-weight:700">${t("readyN")(queue(siteCabs(s.id)).length)}</span>`:""}</small>${mixBar(c=>siteCat(s.id,c))}</div>
+        <div class="num hide-sm"><small>${t("topCat")}</small>${esc(t("cats")[k])}</div>
+        <div class="num">${siteTotal(s.id)}<small>${t("wishesShort")}</small></div>
+        <span class="chev" aria-hidden="true">›</span></button>`; }).join("")}</div>
+      <div style="margin-top:12px">${legend()}</div></div>
+    <div class="insight">${esc(t("insAll")(L(a.s), t("cats")[a.k], L(b.s), t("cats")[b.k]))}</div>`;
+}
+function opsSite(){
+  const s = siteOf(state.site), cabs = siteCabs(s.id);
+  const max = Math.max(1, ...cabs.flatMap(c=>CAT_KEYS.map(k=>catTotal(c.id,k))));
+  const rows = cabs.map(c=>{ const vals = CAT_KEYS.map(k=>catTotal(c.id,k)), top = Math.max(...vals);
+    return `<tr><th class="rowh" scope="row"><button type="button" data-act="ops-cab" data-cab="${c.id}">${esc(L(c))}<small>${c.id} · ${t("zone")[c.zone]}</small></button></th>${vals.map(v=>{ const a = Math.max(.06,v/max);
+      return `<td class="${v===top&&v>0?"peak":""}" style="background:rgba(var(--heat),${a.toFixed(2)});color:${a>.55?"#17200F":"var(--ink)"}">${v}</td>`; }).join("")}</tr>`; }).join("");
+  let best=null;
+  if(cabs.length>1) PRODUCTS.forEach(p=>{ const arr=cabs.map(c=>({c,n:cnt(c.id,p.id)})).sort((x,y)=>y.n-x.n); const gap=arr[0].n-arr[arr.length-1].n; if(!best||gap>best.gap) best={p,gap,hi:arr[0],lo:arr[arr.length-1]}; });
+  return `${crumbs()}<div><h2>${esc(L(s))}</h2><p class="lead">${t("locLead")}</p></div>
+    <div class="tiles">
+      <div class="tile"><span>${t("tCab")}</span><b>${cabs.length}</b></div>
+      <div class="tile"><span>${t("tWish")}</span><b>${siteTotal(s.id)}</b></div>
+      <div class="tile"><span>${t("tReady")}</span><b style="color:var(--wish)">${queue(cabs).length}</b></div>
+      <div class="tile"><span>${t("topCat")}</span><b style="font-size:19px;line-height:1.25;padding-top:6px">${esc(t("cats")[topCatOf(k=>siteCat(s.id,k))])}</b></div>
+    </div>
+    ${queueCard(cabs,true)}
+    <div class="card"><h3 style="margin-bottom:8px">${t("heatTitle")}</h3>
+      <div class="heat-wrap"><table class="heat"><thead><tr><th></th>${CAT_KEYS.map(k=>`<th scope="col" title="${esc(t("cats")[k])}"><i style="display:block;width:10px;height:10px;border-radius:3px;margin:0 auto 3px;background:${CAT_COLORS[k]}"></i>${esc(t("catsShort")[k])}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></div>
+    ${best?`<div class="insight">${esc(t("insLoc")(L(best.p), L(best.hi.c), best.hi.n, L(best.lo.c), best.lo.n))}</div>`:""}
+    <div class="card"><h3 style="margin-bottom:4px">${t("cabListTitle")}</h3><div class="rows">${cabs.map(c=>{ const tp=[...PRODUCTS].sort((a,b)=>cnt(c.id,b.id)-cnt(c.id,a.id))[0]; return `
+      <button class="row" type="button" data-act="ops-cab" data-cab="${c.id}">
+        <div class="name"><b>${esc(L(c))}</b><small>${c.id} · ${t("zone")[c.zone]}${queue([c]).length?` · <span style="color:var(--wish);font-weight:700">${t("readyN")(queue([c]).length)}</span>`:""}</small></div>
+        <div class="num hide-sm"><small>${t("topWish")}</small>${esc(L(tp))}</div>
+        <div class="num">${cabTotal(c.id)}<small>${t("wishesShort")}</small></div>
+        <span class="chev" aria-hidden="true">›</span></button>`; }).join("")}</div></div>`;
+}
+function opsCab(){
+  const c = cabOf(state.opsCab);
+  const ranked = [...PRODUCTS].sort((a,b)=>cnt(c.id,b.id)-cnt(c.id,a.id));
+  const reqs = [...requests[c.id]].sort((a,b)=>b.n-a.n);
+  return `${crumbs()}<div><h2>${esc(L(c))} <span class="pill new" style="vertical-align:middle">${c.id}</span></h2><p class="lead">${t("zone")[c.zone]} · ${cabTotal(c.id)} ${t("wishesShort")} · ${t("peakAt")} ${c.peak}</p></div>
+    <div class="two">
+      <div class="card"><h3>${t("cabTopTitle")}</h3>${mixBar(k=>catTotal(c.id,k))}
+        <div style="margin-top:6px">${ranked.slice(0,6).map(p=>`<div class="item"><div class="icon">${icon(p)}</div><div class="meta"><b>${esc(L(p))}</b><small>${esc(p.brand)}</small><div class="bar ${done(c.id,p)?"done":""}"><i style="width:${pct(c.id,p)}%"></i></div></div><span class="count" style="margin:0;font-weight:700">${Math.min(cnt(c.id,p.id),p.goal)}/${p.goal}</span></div>`).join("")}</div></div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        ${queueCard([c],false)}
+        <div class="card plan"><h3>${t("planTitle")}</h3><p class="fine">${t("planLead")}</p>
+          <div class="line"><span class="tag add">${t("add")}</span><span>${[...queue([c]).map(u=>prod(u.id)), ...ranked.filter(p=>!done(c.id,p))].slice(0,3).map(p=>esc(L(p))).join(", ")}</span></div>
+          <div class="line"><span class="tag rm">${t("remove")}</span><span>${esc(L(c.slow))} <span class="fine">(${t("soldN")(c.slow.n)})</span></span></div>
+          <div class="line"><span class="tag time">${t("time")}</span><span>${c.peak}</span></div>
+        </div>
+        <div class="card"><h3>${t("reqTitle")}</h3><p class="fine" style="margin:4px 0 6px">${t("reqNote")}</p>
+          ${reqs.length?reqs.map(r=>`<div class="req"><div class="icon">${r.img?`<img src="${r.img}" alt="">`:icon({icon:"text"})}</div><div class="meta"><b>${esc(r.name||t("photoReq"))}</b><small>${r.type==="photo"?t("reqPhoto"):t("reqTyped")}</small></div><span class="pill ${r.n>=REQ_GOAL?"ok":"new"}">${t("reqTimes")(r.n)}</span></div>`).join(""):`<p class="fine">${t("reqEmpty")}</p>`}
+        </div>
+        <button class="btn primary" type="button" data-act="open-student" data-cab="${c.id}">${t("openStudent")} →</button>
+      </div>
+    </div>`;
+}
+function queueCard(cabs, showCab){
+  const q = queue(cabs);
+  return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><h3>🔔 ${t("queueTitle")}</h3><span class="pill ${q.length?"hot":"new"}">${q.length}</span></div>
+    <p class="fine" style="margin:4px 0 6px">${t("queueLead")}</p>
+    ${q.length?q.map(u=>{ const p=prod(u.id), c=cabOf(u.cab); return `<div class="req qrow"><div class="icon">${icon(p)}</div><div class="meta"><b>${esc(L(p))} ${u.at==="now"?`<span class="pill hot">${t("newBadge")}</span>`:""}</b><small>${showCab?esc(cabLabel(c))+" · ":""}${cnt(u.cab,u.id)}/${p.goal} · ${u.at==="now"?t("atNow"):t("atToday")}</small></div><div class="row-btns" style="gap:6px;flex-wrap:wrap">${showCab?`<button class="btn ghost small" type="button" data-act="ops-cab" data-cab="${u.cab}">${t("openCab")}</button>`:""}<button class="btn lime small" type="button" data-act="mark-stocked" data-cab="${u.cab}" data-id="${u.id}">${t("markStocked")}</button></div></div>`; }).join(""):`<p class="fine">${t("queueEmpty")}</p>`}
+  </div>`;
+}
+function viewOps(){ return `${state.opsCab ? opsCab() : state.site ? opsSite() : opsAll()}<button class="btn demo" type="button" data-act="reset">${t("reset")}</button>`; }
+
+/* ---------- render ---------- */
+function render(){
+  const ops = state.mode==="ops";
+  document.documentElement.lang = state.lang==="zh"?"zh-CN":"en";
+  $("#app").classList.remove("wide");
+  $("#brandName").textContent = t("brand");
+  $("#brandSub").textContent = ops ? t("console") : cabLabel(cabOf(state.cab));
+  $("#demoLabel").textContent = t("demo");
+  $("#modeStudent").textContent = t("modeStudent"); $("#modeOps").textContent = t("modeOps");
+  $("#modeStudent").setAttribute("aria-pressed", !ops); $("#modeOps").setAttribute("aria-pressed", ops);
+  $("#langEn").setAttribute("aria-pressed", state.lang==="en"); $("#langZh").setAttribute("aria-pressed", state.lang==="zh");
+  $("#foot").textContent = t("foot");
+  $("#view").innerHTML = ops ? viewOps() : ({home:viewHome, cats:viewCats, brands:viewBrands, done:viewDone}[state.view] || viewHome)();
+  const bb = $("#bigBar"); if(bb) requestAnimationFrame(()=>requestAnimationFrame(()=>{ bb.style.width = bb.dataset.to+"%"; }));
+}
+function go(view){ state.view=view; closeSheet(); render(); window.scrollTo(0,0); }
+function setHash(){ const h = state.mode==="ops" ? "operator" : state.cab.toLowerCase().replace("-",""); try{ history.replaceState(null,"","#"+h); }catch(e){} }
+function readHash(){ const h=(location.hash||"").slice(1); if(h==="operator"){ state.mode="ops"; return; } const c=CABS.find(c=>c.id.toLowerCase().replace("-","")===h); if(c){ state.mode="student"; state.cab=c.id; } }
+
+function closeSheet(){ $("#sheetRoot").innerHTML=""; }
+function sheet(html, focusSel){
+  $("#sheetRoot").innerHTML = `<div class="sheet-wrap" data-act="close-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="grab"></div>${html}</div></div>`;
+  setTimeout(()=>{ const b=document.querySelector(focusSel||'.sheet .btn.primary'); b&&b.focus(); },60);
+}
+function openWishSheet(p){
+  state.pending = p;
+  sheet(`<h2 id="sheetTitle">${t("confirmTitle")}</h2>
+    <div class="sel"><div class="icon" style="background:var(--surface)">${icon(p)}</div><div class="meta"><b>${esc(p.brand)} ${esc(L(p))}</b><small>${esc(cabLabel(cabOf(state.cab)))} · ${Math.min(cnt(state.cab,p.id),p.goal)} ${t("of")} ${p.goal}</small></div></div>
+    <label class="toggle" for="notify">${t("notify")}<input id="notify" type="checkbox" ${state.notify?"checked":""}></label>
+    <div class="row-btns"><button class="btn ghost" type="button" data-act="close">${t("cancel")}</button><button class="btn primary" type="button" data-act="submit">${t("submit")}</button></div>`);
+}
+function typeSuggest(){
+  const q = norm(state.typed); if(!q) return "";
+  const hits = PRODUCTS.filter(p=>[p.en,p.zh,p.brand].some(s=>s.toLowerCase().includes(q))).slice(0,4);
+  const reqHit = requests[state.cab].find(r=>r.name && norm(r.name)===q);
+  return `${hits.length?`<p class="fine">${t("already")}</p><div class="suggest-list">${hits.map(p=>`<button class="sugg" type="button" data-act="pick-sugg" data-id="${p.id}"><span class="icon">${icon(p)}</span><span><b>${esc(L(p))}</b><small>${esc(p.brand)}</small></span><em>${t("tapWish")} →</em></button>`).join("")}</div>`:""}
+    ${reqHit?`<p class="fine">${esc(t("reqCount")(reqHit.n))}</p>`:""}`;
+}
+function openTypeSheet(){
+  state.typed = "";
+  sheet(`<h2 id="sheetTitle">${t("typeTitle")}</h2>
+    <div class="field"><label for="typed">${t("typeLabel")}</label><input id="typed" type="text" autocomplete="off" maxlength="40" placeholder="${t("typePh")}"></div>
+    <div id="typeSugg" class="suggest-list"></div>
+    <label class="toggle" for="notify">${t("notify")}<input id="notify" type="checkbox" ${state.notify?"checked":""}></label>
+    <div class="row-btns"><button class="btn ghost" type="button" data-act="close">${t("cancel")}</button><button class="btn primary" type="button" data-act="send-typed" id="sendTyped" disabled>${t("sendReq")}</button></div>`, "#typed");
+}
+function refreshType(){
+  const s = $("#typeSugg"); if(s) s.innerHTML = typeSuggest();
+  const b = $("#sendTyped"); if(b){ const q = state.typed.trim(); b.disabled = !q; b.textContent = q ? t("requestNew")(q.slice(0,40)) : t("sendReq"); }
+}
+function openPhotoSheet(){
+  sheet(`<h2 id="sheetTitle">${t("photoTitle")}</h2>
+    <img class="photo-prev" src="${state.photo}" alt="">
+    <div class="field"><label for="photoName">${t("photoName")}</label><input id="photoName" type="text" autocomplete="off" maxlength="40" placeholder="${t("photoNamePh")}"></div>
+    <label class="toggle" for="notify">${t("notify")}<input id="notify" type="checkbox" ${state.notify?"checked":""}></label>
+    <p class="fine">${t("photoNote")}</p>
+    <div class="row-btns"><button class="btn ghost" type="button" data-act="close">${t("cancel")}</button><button class="btn primary" type="button" data-act="send-photo">${t("sendReq")}</button></div>`);
+}
+function addRequest(type, name, img){
+  const list = requests[state.cab];
+  let r = name ? list.find(x=>x.name && norm(x.name)===norm(name)) : null;
+  if(r){ r.n += 1; if(img && !r.img) r.img = img; if(type==="photo") r.type="photo"; }
+  else { r = {type, name, img, n:1}; list.push(r); }
+  state.lastReq = r; state.last = null;
+  closeSheet(); state.view="done"; render(); window.scrollTo(0,0);
+}
+function loadPhoto(file){
+  if(!file) return;
+  if(!/^image\//.test(file.type)){ toast(t("photoBad")); return; }
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const s = Math.min(1, 480/Math.max(img.width,img.height));
+      const cv = document.createElement("canvas"); cv.width = Math.round(img.width*s); cv.height = Math.round(img.height*s);
+      cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+      try{ state.photo = cv.toDataURL("image/jpeg",.82); }catch(e){ state.photo = reader.result; }
+      openPhotoSheet();
+    };
+    img.onerror = ()=>toast(t("photoBad"));
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+function toast(msg){ $("#toastRoot").innerHTML = `<div class="toast" role="status">${esc(msg)}</div>`; clearTimeout(toast.t); toast.t=setTimeout(()=>$("#toastRoot").innerHTML="",2800); }
+
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-act],[data-lang],[data-mode]"); if(!el) return;
+  if(el.dataset.mode){ state.mode=el.dataset.mode; closeSheet(); setHash(); render(); window.scrollTo(0,0); return; }
+  if(el.dataset.lang){ state.lang=el.dataset.lang; try{localStorage.setItem("wishcab-lang",state.lang);}catch(_){} closeSheet(); render(); return; }
+  const act = el.dataset.act;
+  if(act==="close-bg"){ if(e.target===el) closeSheet(); return; }
+  if(act==="home"){ if(state.mode==="ops"){ state.site=null; state.opsCab=null; render(); } else go("home"); }
+  else if(act==="go"){ go(el.dataset.view); }
+  else if(act==="cat"){ state.cat=el.dataset.cat; go("brands"); }
+  else if(act==="choose"){ openWishSheet(prod(el.dataset.id)); }
+  else if(act==="type"){ openTypeSheet(); }
+  else if(act==="photo"){ const f=$("#photoInput"); f.value=""; f.click(); }
+  else if(act==="pick-sugg"){ const p=prod(el.dataset.id); if(done(state.cab,p)||state.wished.has(key(state.cab,p.id))){ closeSheet(); state.cat=p.cat; go("brands"); } else openWishSheet(p); }
+  else if(act==="send-typed"){ const q=state.typed.trim().slice(0,40); if(!q) return; state.notify=$("#notify").checked; addRequest("text", q, null); }
+  else if(act==="send-photo"){ state.notify=$("#notify").checked; addRequest("photo", $("#photoName").value.trim().slice(0,40), state.photo); }
+  else if(act==="close"){ closeSheet(); }
+  else if(act==="submit"){
+    const p = state.pending, cab = state.cab;
+    state.notify = $("#notify").checked;
+    const was = cnt(cab,p.id) >= p.goal;
+    counts[cab][p.id] = cnt(cab,p.id) + 1; state.wished.add(key(cab,p.id));
+    state.last = p.id; state.lastReq = null; state.lastUnlocked = !was && counts[cab][p.id] >= p.goal;
+    if(state.lastUnlocked) unlocks.unshift({cab, id:p.id, at:"now"});
+    closeSheet(); state.view="done"; render(); window.scrollTo(0,0);
+  }
+  else if(act==="share"){
+    const name = state.lastReq ? (state.lastReq.name || t("photoReq")) : L(prod(state.last));
+    const left = state.lastReq ? Math.max(0,REQ_GOAL-state.lastReq.n) : Math.max(0,prod(state.last).goal-cnt(state.cab,state.last));
+    const text = t("shareText")(name, left);
+    try{ navigator.clipboard.writeText(text).then(()=>toast(t("copied")), ()=>toast(text)); }catch(_){ toast(text); }
+  }
+  else if(act==="mark-stocked"){ stocked.add(key(el.dataset.cab, el.dataset.id)); render(); toast(t("stockedToast")(cabLabel(cabOf(el.dataset.cab)))); }
+  else if(act==="ops-this"){ state.mode="ops"; state.site=cabOf(state.cab).site; state.opsCab=state.cab; closeSheet(); setHash(); render(); window.scrollTo(0,0); }
+  else if(act==="ops-all"){ state.site=null; state.opsCab=null; render(); window.scrollTo(0,0); }
+  else if(act==="ops-site"){ state.site=el.dataset.site; state.opsCab=null; render(); window.scrollTo(0,0); }
+  else if(act==="ops-cab"){ state.opsCab=el.dataset.cab; state.site=cabOf(el.dataset.cab).site; render(); window.scrollTo(0,0); }
+  else if(act==="open-student"){ state.cab=el.dataset.cab; state.mode="student"; setHash(); go("home"); toast(t("now")(cabLabel(cabOf(state.cab)))); }
+  else if(act==="reset"){ fresh(); render(); window.scrollTo(0,0); toast(t("resetDone")); }
+});
+$("#photoInput").addEventListener("change", e=>loadPhoto(e.target.files && e.target.files[0]));
+let composing=false;
+document.addEventListener("compositionstart", e=>{ if(e.target.id==="typed") composing=true; });
+document.addEventListener("compositionend", e=>{ if(e.target.id==="typed"){ composing=false; state.typed=e.target.value; refreshType(); } });
+document.addEventListener("input", e=>{ if(e.target.id==="typed" && !composing && !e.isComposing){ state.typed=e.target.value; refreshType(); } });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && $("#sheetRoot").innerHTML) closeSheet(); if(e.key==="Enter" && e.target.id==="typed"){ const b=$("#sendTyped"); if(b&&!b.disabled) b.click(); } });
+window.addEventListener("hashchange", ()=>{ readHash(); render(); });
+
+readHash();
+render();
+})();
+</script>
