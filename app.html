@@ -250,7 +250,7 @@ const T = {
     photoBad:"That file isn’t an image. Try a photo of the product.",
     counted:"Wish counted!", unlockedNow:"You unlocked it!", more:n=>`${n} more to unlock`, arriving:"Stocked at the next restock",
     reqDone:"Request sent!", reqLead:"We’ll check it and add it to this cabinet’s list.",
-    reqCount:n=>`${n} ${n===1?"person":"people"} at this cabinet asked for this`, reqGoal:"At 10 requests it goes on the wish list.",
+    reqCount:n=>`${n} ${n===1?"person":"people"} at this cabinet asked for this`, reqGoal:"At 5 requests it goes on the wish list.",
     photoReq:"Photo request",
     promiseOn:"We’ll message you when it arrives.", promiseOff:"Check this page after the next restock.",
     couponLine:"10% off is applied automatically when you buy it.",
@@ -258,7 +258,7 @@ const T = {
     shareText:(n,left)=>`I wished for ${n} on Wish2Shelf. ${left>0?left+" more wishes and it gets stocked!":"We unlocked it!"} Scan the sticker on the cabinet to help.`,
     foot:"Prototype · demo numbers · locations, brands and products are placeholders",
     allLoc:"All locations", allLead:"Every wish carries the cabinet whose QR code was scanned. Pick a location to see its cabinets.",
-    tLoc:"Locations", tCab:"Cabinets", tWish:"Wishes this week", tUnl:"Products unlocked", tReq:"New requests", tReady:"Ready to restock", queueTitle:"Unlocked: ready to restock", queueLead:"These products reached 10 wishes. Stock them at the next restock, then mark them so every wisher gets a message.", queueEmpty:"Nothing waiting. Products appear here the moment they unlock.", atNow:"Unlocked just now", atToday:"Unlocked today 09:12", markStocked:"Mark restocked", openCab:"Open", stockedToast:c=>`Marked as restocked. Everyone who wished at ${c} gets a message.`, readyN:n=>`${n} ready to restock`, stStock:"In stock", newBadge:"New",
+    tLoc:"Locations", tCab:"Cabinets", tWish:"Wishes this week", tUnl:"Products unlocked", tReq:"New requests", tReady:"Ready to restock", queueTitle:"Unlocked: ready to restock", queueLead:"These products reached 5 wishes. Stock them at the next restock, then mark them so every wisher gets a message.", queueEmpty:"Nothing waiting. Products appear here the moment they unlock.", atNow:"Unlocked just now", atToday:"Unlocked today 09:12", markStocked:"Mark restocked", openCab:"Open", stockedToast:c=>`Marked as restocked. Everyone who wished at ${c} gets a message.`, readyN:n=>`${n} ready to restock`, stStock:"In stock", newBadge:"New",
     cabinets:n=>`${n} ${n===1?"cabinet":"cabinets"}`, wishesShort:"wishes", topCat:"Top demand",
     locLead:"Each row is one cabinet. The outlined cell is what that cabinet wants most. Tap a cabinet for its restock plan.",
     heatTitle:"Wishes by category", cabListTitle:"Cabinets", topWish:"Top wish",
@@ -271,8 +271,8 @@ const T = {
     insLoc:(p,hi,hn,lo,ln)=>`${p}: ${hn} wishes at ${hi}, only ${ln} at ${lo}. Stock by cabinet, not by campus.`,
     types:{campus:"Campus",office:"Office park",gym:"Gym"},
     zone:{study:"Study area",class:"Teaching area",living:"Living area",sports:"Sports area",office:"Office",gym:"Gym floor"},
-    cats:{coffee:"Coffee & energy",tea:"Tea & milk",hot:"Hot drinks",water:"Water & sparkling",snacks:"Snacks & food"},
-    catsShort:{coffee:"Coffee",tea:"Tea",hot:"Hot",water:"Water",snacks:"Snacks"}
+    cats:{coffee:"Coffee & energy",tea:"Tea & milk",water:"Water & sparkling",snacks:"Snacks & food"},
+    catsShort:{coffee:"Coffee",tea:"Tea",water:"Water",snacks:"Snacks"}
   },
   zh:{
     brand:"心愿柜", demo:"演示视图", modeStudent:"学生端", modeOps:"元气森林后台", console:"元气森林后台",
@@ -292,7 +292,7 @@ const T = {
     photoBad:"这不是图片文件，请上传商品照片。",
     counted:"心愿已记录！", unlockedNow:"你帮它解锁了！", more:n=>`还差 ${n} 个心愿解锁`, arriving:"将在下次补货时上架",
     reqDone:"申请已提交！", reqLead:"我们会确认后加入本柜的心愿单。",
-    reqCount:n=>`本柜已有 ${n} 人申请`, reqGoal:"达到 10 人申请后进入心愿单。",
+    reqCount:n=>`本柜已有 ${n} 人申请`, reqGoal:"达到 5 人申请后进入心愿单。",
     photoReq:"照片申请",
     promiseOn:"到货后我们会通知你。", promiseOff:"下次补货后回来看看。",
     couponLine:"购买时自动享受9折。",
@@ -300,7 +300,7 @@ const T = {
     shareText:(n,left)=>`我在心愿柜为「${n}」许了愿。${left>0?"还差 "+left+" 个心愿就能上架！":"我们解锁啦！"}扫描柜子上的贴纸一起助力吧。`,
     foot:"原型演示 · 示例数据 · 位置、品牌和商品为占位",
     allLoc:"全部点位", allLead:"每个心愿都带有被扫描柜子的标签。选择一个点位查看它的柜子。",
-    tLoc:"点位", tCab:"柜子", tWish:"本周心愿", tUnl:"已解锁商品", tReq:"新申请", tReady:"待补货", queueTitle:"已解锁：等待补货", queueLead:"这些商品已达到 10 个心愿。下次补货时上架，然后标记完成，所有许愿的人都会收到通知。", queueEmpty:"暂无等待中的商品。商品一解锁就会出现在这里。", atNow:"刚刚解锁", atToday:"今天 09:12 解锁", markStocked:"标记已补货", openCab:"查看", stockedToast:c=>`已标记补货，在${c}许愿的人会收到通知。`, readyN:n=>`${n} 个待补货`, stStock:"已上架", newBadge:"新",
+    tLoc:"点位", tCab:"柜子", tWish:"本周心愿", tUnl:"已解锁商品", tReq:"新申请", tReady:"待补货", queueTitle:"已解锁：等待补货", queueLead:"这些商品已达到 5 个心愿。下次补货时上架，然后标记完成，所有许愿的人都会收到通知。", queueEmpty:"暂无等待中的商品。商品一解锁就会出现在这里。", atNow:"刚刚解锁", atToday:"今天 09:12 解锁", markStocked:"标记已补货", openCab:"查看", stockedToast:c=>`已标记补货，在${c}许愿的人会收到通知。`, readyN:n=>`${n} 个待补货`, stStock:"已上架", newBadge:"新",
     cabinets:n=>`${n} 台柜子`, wishesShort:"心愿", topCat:"最大需求",
     locLead:"每一行是一台柜子，描边格子是它最想要的品类。点击柜子查看补货方案。",
     heatTitle:"各品类心愿数", cabListTitle:"柜子", topWish:"最热心愿",
@@ -313,14 +313,14 @@ const T = {
     insLoc:(p,hi,hn,lo,ln)=>`「${p}」在${hi}有 ${hn} 个心愿，在${lo}只有 ${ln} 个。要按柜子选品，而不是按校区。`,
     types:{campus:"校园",office:"办公园区",gym:"健身房"},
     zone:{study:"学习区",class:"教学区",living:"生活区",sports:"运动区",office:"办公区",gym:"健身区"},
-    cats:{coffee:"咖啡和功能饮料",tea:"茶饮和奶制品",hot:"热饮",water:"水和气泡水",snacks:"零食和食品"},
-    catsShort:{coffee:"咖啡",tea:"茶饮",hot:"热饮",water:"饮用水",snacks:"零食"}
+    cats:{coffee:"咖啡和功能饮料",tea:"茶饮和奶制品",water:"水和气泡水",snacks:"零食和食品"},
+    catsShort:{coffee:"咖啡",tea:"茶饮",water:"饮用水",snacks:"零食"}
   }
 };
-const CAT_KEYS = ["coffee","tea","hot","water","snacks"];
-const CAT_COLORS = {coffee:"#7A4B2A", tea:"#6FA84A", hot:"#E0A33A", water:"#3FA7DE", snacks:"#D9542B"};
-const CAT_ICON = {coffee:{icon:"cup",c:"#7A4B2A"}, tea:{icon:"bottle",c:"#6FA84A"}, hot:{icon:"cup",c:"#E0A33A"}, water:{icon:"bottle",c:"#3FA7DE"}, snacks:{icon:"bag",c:"#D9542B"}};
-const REQ_GOAL = 10;
+const CAT_KEYS = ["coffee","tea","water","snacks"];
+const CAT_COLORS = {coffee:"#7A4B2A", tea:"#6FA84A", water:"#3FA7DE", snacks:"#D9542B"};
+const CAT_ICON = {coffee:{icon:"cup",c:"#7A4B2A"}, tea:{icon:"bottle",c:"#6FA84A"}, water:{icon:"bottle",c:"#3FA7DE"}, snacks:{icon:"bag",c:"#D9542B"}};
+const REQ_GOAL = 5;
 
 const SITES = [
   {id:"tc", type:"campus", en:"XJTLU Taicang Campus", zh:"西浦太仓校区"},
@@ -350,8 +350,6 @@ const PRODUCTS = [
   {id:"matcha", cat:"tea", icon:"bottle", c:"#6FA84A", en:"Matcha Milk Tea", zh:"抹茶奶茶", brand:"Green Hill", goal:30},
   {id:"peach", cat:"tea", icon:"bottle", c:"#F39A7B", en:"Peach Oolong Tea", zh:"白桃乌龙茶", brand:"Leaf & Co.", goal:30},
   {id:"jasmine", cat:"tea", icon:"bottle", c:"#E9E2A8", en:"Jasmine Green Tea", zh:"茉莉绿茶", brand:"Leaf & Co.", goal:30},
-  {id:"datemilk", cat:"hot", icon:"cup", c:"#B5523B", en:"Hot Red Date Milk", zh:"热红枣牛奶", brand:"Sunny Farm", goal:30},
-  {id:"cocoa", cat:"hot", icon:"cup", c:"#6B3E26", en:"Hot Cocoa", zh:"热可可", brand:"Cozy Cup", goal:30},
   {id:"lemon", cat:"water", icon:"bottle", c:"#F2C230", en:"Lemon Sparkling 1L", zh:"柠檬气泡水 1L", brand:"Bubble Lab", goal:30},
   {id:"lime", cat:"water", icon:"bottle", c:"#8CC63F", en:"Lime Sparkling", zh:"青柠气泡水", brand:"Bubble Lab", goal:30},
   {id:"electro", cat:"water", icon:"bottle", c:"#4AB3E8", en:"Electrolyte Water", zh:"电解质水", brand:"Pulse", goal:30},
@@ -361,12 +359,12 @@ const PRODUCTS = [
   {id:"bar", cat:"snacks", icon:"bar", c:"#B5743A", en:"Protein Bar", zh:"蛋白棒", brand:"Morning Grain", goal:20},
   {id:"sandwich", cat:"snacks", icon:"bar", c:"#E8C26A", en:"Egg Sandwich", zh:"鸡蛋三明治", brand:"Morning Grain", goal:20}
 ];
-PRODUCTS.forEach(p=>{ p.goal = 10; });
+PRODUCTS.forEach(p=>{ p.goal = 5; });
 const OVERRIDE = {
-  "TC-07":{oatlatte:9, americano:8, energy:6},
-  "TC-05":{americano:10, oatlatte:6},
-  "TC-03":{noodles:10, lemon:7, crisps:5, americano:2},
-  "TC-12":{electro:10, bar:6, americano:0}
+  "TC-07":{oatlatte:4, americano:3, energy:2},
+  "TC-05":{americano:5, oatlatte:3},
+  "TC-03":{noodles:5, lemon:4, crisps:2, americano:1},
+  "TC-12":{electro:5, bar:3, americano:0}
 };
 const SEED_REQ = {
   "TC-07":[{type:"text", name:"Coconut Water", n:6},{type:"text", name:"Yogurt Drink", n:3}],
@@ -374,9 +372,9 @@ const SEED_REQ = {
   "TC-12":[{type:"text", name:"Sports Gel", n:4}]
 };
 const ZONE_W = {
-  study:{coffee:.9,tea:.8,hot:.6,water:.2,snacks:.3}, class:{coffee:1,tea:.7,hot:.4,water:.2,snacks:.2},
-  living:{coffee:.3,tea:.6,hot:.4,water:.6,snacks:.95}, sports:{coffee:.2,tea:.15,hot:.1,water:1,snacks:.6},
-  office:{coffee:1,tea:.75,hot:.5,water:.25,snacks:.35}, gym:{coffee:.15,tea:.1,hot:.05,water:1,snacks:.7}
+  study:{coffee:.9,tea:.8,water:.2,snacks:.3}, class:{coffee:1,tea:.7,water:.2,snacks:.2},
+  living:{coffee:.3,tea:.6,water:.6,snacks:.95}, sports:{coffee:.2,tea:.15,water:1,snacks:.6},
+  office:{coffee:1,tea:.75,water:.25,snacks:.35}, gym:{coffee:.15,tea:.1,water:1,snacks:.7}
 };
 function seeded(s){ let h=2166136261; for(const ch of s){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619); } return ((h>>>0)%1000)/1000; }
 

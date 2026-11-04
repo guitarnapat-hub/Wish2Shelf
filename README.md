@@ -2,7 +2,7 @@
 
 Clickable prototype for the Chi-Forest (元气森林) smart cabinet "Machine Managing Competition".
 
-Students scan the QR sticker on a cabinet and wish for a missing product, first by category and then by brand. If the product isn't listed, they can type its name or upload a photo of the label. A product unlocks at **10 wishes**. Chi Forest sees demand by location and recommends what each partner should stock; the partner restocks, and every wisher gets a message.
+Students scan the QR sticker on a cabinet and wish for a missing product, first by category and then by brand. If the product isn't listed, they can type its name or upload a photo of the label. A product unlocks at **5 wishes**. Chi Forest sees demand by location and recommends what each partner should stock; the partner restocks, and every wisher gets a message.
 
 ## Try it
 
@@ -17,7 +17,7 @@ On a computer, use the buttons above the phone to switch between the **Student a
 - `app.html`: the prototype itself.
 
 Demo links:
-- `#tc07`: the student page for cabinet TC-07 (Library 1F). Oat Latte is at 9/10, so one wish unlocks it.
+- `#tc07`: the student page for cabinet TC-07 (Library 1F). Oat Latte is at 4/5, so one wish unlocks it.
 - `#operator`: the Chi Forest console (all locations → campus → cabinet).
 
 ## Notes
