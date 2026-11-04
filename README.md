@@ -24,4 +24,4 @@ Demo links:
 
 - There is no build step and no backend. Data is kept in memory and resets when you reload.
 - All numbers, locations and brand names are placeholders for the demo.
-- The "AI restock assistant" uses simple rules for now.
+- The stock advice for each partner is generated from simple rules based on the wishes.
